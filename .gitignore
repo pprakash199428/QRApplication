@@ -1,0 +1,11 @@
+### Java template
+*.class
+.classpath
+.springBeans
+.idea
+.project
+.settings
+.gitignore~
+*.iml
+bin/
+target/
