@@ -31,10 +31,10 @@ import com.spicejet.util.SpicejetUtil;
 
 @Service
 public class LoginServiceImpl implements LoginService {
-	
+
 	@Autowired
 	Environment environment;
-	
+
 	@Autowired
 	ApplicationContext context;
 
@@ -72,77 +72,77 @@ public class LoginServiceImpl implements LoginService {
 		}
 
 	}
-	
+
 	public EmdmUserDetails authoriseFromEMDM(String user) throws Exception {
 		RestRequester restRequester = getRestRequesterForEMDM(retreiveEMDMAuthToken());
-        restRequester.getBodyContentMap().put("Email", user + Constants.EMAIL_SUFFIX);
-        return parseEmdmUserDetail(getRawJson(restRequester));	
+		restRequester.getBodyContentMap().put("Email", user + Constants.EMAIL_SUFFIX);
+		return parseEmdmUserDetail(getRawJson(restRequester));
 	}
-	
-	
+
 	private String retreiveEMDMAuthToken() throws Exception {
-        String token;
-        RestRequester restRequester = context.getBean(RestRequester.class);
-        restRequester.setUrl(Constants.EMDM_AUTHENTICATE_API_URL);
-        restRequester.setRequestType(RequestType.POST);
-        restRequester.getBodyContentMap().put("username",
-               Constants.EMDM_AUTHENTICATE_USERNAME);
-        restRequester.getBodyContentMap().put("password",
-                Constants.EMDM_AUTHENTICATE_PASSWORD);
-        HttpResponse response = restRequester.sendRequest();
-        if ((response != null) && ((response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
-                && response.containsHeader("token"))) {
-            Header[] tokenHeader = response.getHeaders("token");
-            String tokenString = tokenHeader[0].toString();
-            token = tokenString.substring("Token:".length(), tokenString.length());
-            return token;
-        } else {
-            throw new Exception("Failed to Retrive Auth Token from EMDM");
-        }
-    }
-	
+		String token;
+		RestRequester restRequester = context.getBean(RestRequester.class);
+		restRequester.setUrl(Constants.EMDM_AUTHENTICATE_API_URL);
+		restRequester.setRequestType(RequestType.POST);
+		restRequester.getBodyContentMap().put("username", Constants.EMDM_AUTHENTICATE_USERNAME);
+		restRequester.getBodyContentMap().put("password", Constants.EMDM_AUTHENTICATE_PASSWORD);
+		HttpResponse response = restRequester.sendRequest();
+		if ((response != null) && ((response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
+				&& response.containsHeader("token"))) {
+			Header[] tokenHeader = response.getHeaders("token");
+			String tokenString = tokenHeader[0].toString();
+			token = tokenString.substring("Token:".length(), tokenString.length());
+			return token;
+		} else {
+			throw new Exception("Failed to Retrive Auth Token from EMDM");
+		}
+	}
+
 	private RestRequester getRestRequesterForEMDM(String token) {
-        RestRequester restRequester = context.getBean(RestRequester.class);
-        restRequester.setUrl(Constants.EMDM_USER_DETAIL_API_URL);
-        restRequester.setRequestType(RequestType.POST);
-        restRequester.getHeaderContentMap().put("Token", token);
-        return restRequester;
-    }
-	 public EmdmUserDetails getEMDMUserByEmailId(String user) throws Exception {
-	        RestRequester restRequester = getRestRequesterForEMDM(retreiveEMDMAuthToken());
-	        restRequester.getBodyContentMap().put("Email", user + Constants.EMAIL_SUFFIX);
-	        return parseEmdmUserDetail(getRawJson(restRequester));
-	 }
-	 private EmdmUserDetails parseEmdmUserDetail(String rawJson) throws Exception {
-	        EMDMUserDetailsDto emdmUserDetailDto = null;
-	        try {
-	            ObjectMapper objectMapper = new ObjectMapper();
-	            emdmUserDetailDto = objectMapper.readValue(rawJson, EMDMUserDetailsDto.class);
-	        } catch (IOException e) {
-	           
-	        }
-	        if (emdmUserDetailDto.getStatusCode() == 2001) {
-	            List<EmdmUserDetails> userDetails = emdmUserDetailDto.getData();
-	            if (!userDetails.isEmpty()) {
-	                EmdmUserDetails emdmUserDetail = userDetails.get(0);
-	                emdmUserDetail.setEmail("\"" + emdmUserDetail.getEmail().toLowerCase() + "\"");
-	              
-	                return emdmUserDetail;
-	            }
-	        } else {
-	            throw new Exception("User could not be located in emdm server");
-	        }
-			return null;
-	    }
-	 private String getRawJson(RestRequester restRequester) throws UnsupportedOperationException, IOException {
-	        String emdmRawJson = null;
-	        HttpResponse response = restRequester.sendRequest();
-	        if (response != null) {
-	            ObjectMapper objectMapper = new ObjectMapper();
-	            emdmRawJson = objectMapper.readValue(response.getEntity().getContent(), String.class);
-	            return emdmRawJson;
-	        }
-	        return emdmRawJson;
-	    }
+		RestRequester restRequester = context.getBean(RestRequester.class);
+		restRequester.setUrl(Constants.EMDM_USER_DETAIL_API_URL);
+		restRequester.setRequestType(RequestType.POST);
+		restRequester.getHeaderContentMap().put("Token", token);
+		return restRequester;
+	}
+
+	public EmdmUserDetails getEMDMUserByEmailId(String user) throws Exception {
+		RestRequester restRequester = getRestRequesterForEMDM(retreiveEMDMAuthToken());
+		restRequester.getBodyContentMap().put("Email", user + Constants.EMAIL_SUFFIX);
+		return parseEmdmUserDetail(getRawJson(restRequester));
+	}
+
+	private EmdmUserDetails parseEmdmUserDetail(String rawJson) throws Exception {
+		EMDMUserDetailsDto emdmUserDetailDto = null;
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			emdmUserDetailDto = objectMapper.readValue(rawJson, EMDMUserDetailsDto.class);
+		} catch (IOException e) {
+
+		}
+		if (emdmUserDetailDto.getStatusCode() == 2001) {
+			List<EmdmUserDetails> userDetails = emdmUserDetailDto.getData();
+			if (!userDetails.isEmpty()) {
+				EmdmUserDetails emdmUserDetail = userDetails.get(0);
+				emdmUserDetail.setEmail("\"" + emdmUserDetail.getEmail().toLowerCase() + "\"");
+
+				return emdmUserDetail;
+			}
+		} else {
+			throw new Exception("User could not be located in emdm server");
+		}
+		return null;
+	}
+
+	private String getRawJson(RestRequester restRequester) throws UnsupportedOperationException, IOException {
+		String emdmRawJson = null;
+		HttpResponse response = restRequester.sendRequest();
+		if (response != null) {
+			ObjectMapper objectMapper = new ObjectMapper();
+			emdmRawJson = objectMapper.readValue(response.getEntity().getContent(), String.class);
+			return emdmRawJson;
+		}
+		return emdmRawJson;
+	}
 
 }
