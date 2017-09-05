@@ -2,13 +2,10 @@ package com.spicejet.controller;
 
 import com.spicejet.dto.PlaceVerification;
 import com.spicejet.dto.PlaceVerificationResponse;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.spicejet.dto.User;
-
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 public class CheckInController {
 
